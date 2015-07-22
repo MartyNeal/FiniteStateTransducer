@@ -8,10 +8,12 @@ class Solver {
         def i = 0
         while (i < inputOutputPairs.size()) {
             def (input, output) = inputOutputPairs[i]
+/*
             println "$i $stack"
             println machine
             println "input $input output $output"
             println ''
+*/
             switch (machine.getOutput(input)) {
                 case output:
                     machine.move(input)
@@ -24,27 +26,37 @@ class Solver {
                     break
                 default:
                     int newState
-                    println "pop"
-                    (i, newState) = stack.pop()
-                    machine.curstate = newState
-                    input = inputOutputPairs[i][0]
-                    while (machine.getState(input) + 1 == machine.size) {
-                        machine.remove(input)
-                        if (stack.size() > 0) {
-                            println "pop"
-                            (i, newState) = stack.pop()
-                            machine.curstate = newState
-                            input = inputOutputPairs[i][0]
+                    while(true) {
+                        (i, newState) = stack.pop()
+                        machine.curstate = newState
+                        input = inputOutputPairs[i][0]
+                        newState = machine.getState(input)+1
+                        if (newState < machine.size) {
+                            stack.push([i, machine.curstate])
+                            output = inputOutputPairs[i][1]
+                            machine.setOutput(input, output)
+                            machine.setState(input, newState)
+                            def newTransitions = machine.transitions[newState]
+                            def newOutputTransitions = machine.outputTransitions[newState]
+                            if ((0..<newState).any { offset ->
+                                machine.outputTransitions[offset] == newOutputTransitions &&
+                                        machine.transitions[offset] == newTransitions
+                            }) {
+                                continue
+                            }
+
+                            machine.move(input)
+                            break
                         } else {
-                            println "Adding state"
-                            machine.addState()
+                            machine.remove(input)
+                            if (stack.size() == 0) {
+                                println "Adding state"
+                                machine.addState()
+                                i = -1
+                                break
+                            }
                         }
                     }
-                    stack.push([i, machine.curstate])
-                    (input, output) = inputOutputPairs[i]
-                    machine.setOutput(input, output)
-                    machine.setState(input, machine.getState(input) + 1)
-                    machine.move(input)
             }
             i++
         }

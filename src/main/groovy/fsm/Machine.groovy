@@ -1,5 +1,8 @@
 package main.groovy.fsm
 
+import groovy.transform.Canonical
+
+@Canonical
 class Machine<Input, Output> {
     List<Input> inputs = []
     def Machine(List<Input> inputs) {
@@ -10,7 +13,7 @@ class Machine<Input, Output> {
     Map<Integer, Map<Input, Output>> outputTransitions = [0: [:]]
     Integer curstate = 0
 
-    int getState(Input input) {
+    Integer getState(Input input) {
         transitions[curstate][input]
     }
 
@@ -51,12 +54,12 @@ class Machine<Input, Output> {
         inputs.each { sb.append "   $it" }
         sb.append '\n'
         size.times { k ->
-            def pp = { a, j -> def z = a[k][j]; z == null ? '?' : z }
+            def pp = { a, j -> def z = a[k][j]; z == null ? '?' : z.toString()[0] }
             sb.append "${curstate == k ? '*' : ' '}$k"
             inputs.each { i -> sb.append " ${pp(transitions, i)}/${pp(outputTransitions, i)}" }
             sb.append '\n'
         }
-        sb.size = sb.size - 1
+        sb.deleteCharAt(sb.size() - 1)
         sb.toString()
     }
 }

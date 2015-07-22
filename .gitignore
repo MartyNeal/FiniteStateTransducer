@@ -1,0 +1,19 @@
+### Emacs
+*~
+\#*\#
+.\#*
+auto-save-list
+
+### Gradle
+.gradle
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+
+### Idea
+*.iml
+*.ipr
+*.iws
+.idea/
+/out/
+.idea_modules/
